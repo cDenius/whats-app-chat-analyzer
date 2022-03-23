@@ -1,6 +1,6 @@
 import sys
 import re
-import pandas as pd
+import numpy as np
 
 
 def load_chat(file):
@@ -11,8 +11,8 @@ def load_chat(file):
     lines = lines[1:]
 
     regexp = re.compile(r'[0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]\,[0-9][0-9]\:[0-9][0-9]\-')
-    df = pd.DataFrame(columns=["time", "author", "message"])
-    
+
+    data = []
     
     for l in lines:
         if "Sicherheitsnummer" in l or len(l) == 1:
@@ -23,14 +23,41 @@ def load_chat(file):
         else:
             message = l
         
-        df = df.append({"time":time, 
-                        "author": author, 
-                        "message": message}, 
-                       ignore_index=True
-                       )
-        print(time, author, message)
+        date, clock = time.replace(" ", "").split(",")
+        d, m, y = date.split(".")
+        hr, mn, = clock.split(":")
 
-    print(df.author.value_counts())
+
+        data.append([int(d), 
+                     int(m),
+                     int(y),
+                     int(hr), 
+                     int(mn),
+                     author[1:], 
+                     message]
+                    )
+        
+        # print(time, author, message)
+
+    data = np.array(data) 
+    times = np.array(data[:, :5], dtype=int)
+    authors = np.array(data[:, 5], dtype=str)
+    messages = np.array(data[:, 6], dtype=str)
+  
+    unique_authors, counts = np.unique(authors, return_counts=True)
+    print("\nNumber of messages")
+    print(dict(zip(unique_authors, counts)))
+
+    masks = [] 
+    for author in unique_authors:
+        mask = (authors == author)
+        masks.append(mask)
+
+    print("\nAverage message length")
+    for i, author in enumerate(unique_authors):
+        print(author, sum(map(len, messages[masks[i]])) 
+                      / len(messages[masks[i]]))
+
 
 
 if __name__ == "__main__":
