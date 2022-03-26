@@ -1,10 +1,7 @@
 import sys
 import re
 import numpy as np
-import datetime
-
-
-WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+from time_analysis import weekday_analaysis, time_histogram
 
 
 def load_chat(file):
@@ -66,14 +63,10 @@ def load_chat(file):
         print(author, sum(map(len, messages[masks[i]]))
               / len(messages[masks[i]]))
 
-    print("\nOn which weekday are they writing")
-    for i, author in enumerate(unique_authors):
-        a_times = times[masks[i]]
-        days = np.zeros(7, dtype=int)
-        for t in a_times:
-            # zero = Monday
-            days[datetime.datetime(2000+t[2], t[1], t[0]).weekday()] += 1
-        print(author, list(zip(WEEKDAYS, days)))
+    weekday_analaysis(unique_authors, masks, times)
+
+    time_histogram(unique_authors, masks, times,
+                   messages, m_length=False, plot=True)
 
 
 if __name__ == "__main__":
