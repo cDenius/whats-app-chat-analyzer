@@ -63,10 +63,9 @@ def load_chat(file):
         print(author, sum(map(len, messages[masks[i]]))
               / len(messages[masks[i]]))
 
-    weekday_analysis(unique_authors, masks, times)
+    weekday_analysis(unique_authors, times, authors, plot=True)
 
-    time_histogram(unique_authors, masks, times,
-                   authors, messages, plot=True)
+    time_histogram(unique_authors, times, authors, messages, plot=True)
 
 
 if __name__ == "__main__":

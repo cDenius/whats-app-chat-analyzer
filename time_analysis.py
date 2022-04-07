@@ -1,22 +1,29 @@
 import numpy as np
 import datetime
-from plotting import plot_histogram
+from plotting import plot_bars, plot_stacked_bars
 
 WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 
 
-def weekday_analysis(authors, masks, times, plot=False):
+def weekday_analysis(unique_authors, times, authors, plot=False):
     print("\nOn which weekday are they writing")
-    for i, author in enumerate(authors):
-        a_times = times[masks[i]]
-        days = np.zeros(7, dtype=int)
-        for t in a_times:
-            # zero = Monday
-            days[datetime.datetime(2000+t[2], t[1], t[0]).weekday()] += 1
-        print(author, list(zip(WEEKDAYS, days)))
+    days = np.zeros((7, len(unique_authors)), dtype=int)
+    for t, a in zip(times, authors):
+        a_index = unique_authors.tolist().index(a)
+        d = datetime.datetime(2000+t[2], t[1], t[0]).weekday()
+        days[d, a_index] += 1
+
+    for i, author in enumerate(unique_authors):
+        print(author)
+        for j, wd in enumerate(WEEKDAYS):
+            print(wd, days[j, i])
+        if plot:
+            plot_bars(days[:, i],
+                      WEEKDAYS,
+                      f"When does {author} writes messages")
 
 
-def time_histogram(unique_authors, masks, times, authors, messages, plot=True):
+def time_histogram(unique_authors, times, authors, messages, plot=True):
     first_m, first_y = times[0, 1], times[0, 2]
     last_m, last_y = times[-1, 1], times[-1, 2]
 
@@ -42,7 +49,7 @@ def time_histogram(unique_authors, masks, times, authors, messages, plot=True):
     for index, key in enumerate(sorted(hist_mess)):
         print(f"{key % 13}.{key // 13} - {hist_mess[key]}")
         grid_mess[index] = hist_mess[key]
-    
+
     grid_char = np.zeros((len(hist_char), len(unique_authors)))
     print("\nCharacters Histogram")
     for index, key in enumerate(sorted(hist_char)):
@@ -50,11 +57,11 @@ def time_histogram(unique_authors, masks, times, authors, messages, plot=True):
         grid_char[index] = hist_char[key]
 
     if plot:
-        plot_histogram(grid_mess, 
-                       sorted(hist_mess), 
-                       unique_authors, 
-                       "Number of Messages send")
-        plot_histogram(grid_char, 
-                       sorted(hist_char), 
-                       unique_authors, 
-                       "Number of Characters send")
+        plot_stacked_bars(grid_mess,
+                          sorted(hist_mess),
+                          unique_authors,
+                          "Number of Messages send")
+        plot_stacked_bars(grid_char,
+                          sorted(hist_char),
+                          unique_authors,
+                          "Number of Characters send")
