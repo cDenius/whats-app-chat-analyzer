@@ -1,7 +1,7 @@
 import sys
 import re
 import numpy as np
-from time_analysis import weekday_analaysis, time_histogram
+from time_analysis import weekday_analysis, time_histogram
 
 
 def load_chat(file):
@@ -63,10 +63,10 @@ def load_chat(file):
         print(author, sum(map(len, messages[masks[i]]))
               / len(messages[masks[i]]))
 
-    weekday_analaysis(unique_authors, masks, times)
+    weekday_analysis(unique_authors, masks, times)
 
     time_histogram(unique_authors, masks, times,
-                   messages, m_length=False, plot=True)
+                   authors, messages, plot=True)
 
 
 if __name__ == "__main__":
